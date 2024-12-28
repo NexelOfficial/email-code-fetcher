@@ -1,0 +1,6 @@
+/target/
+/gen/schemas
+
+.env
+credentials.json
+token_store.json
