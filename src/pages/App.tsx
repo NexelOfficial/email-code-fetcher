@@ -86,7 +86,7 @@ const App = () => {
   // Make sure to start the fetcher on startup
   createEffect(async () => {
     const messages = await getMatches();
-    if (messages.args.tray) {
+    if (messages.args.tray.value) {
       await startFetcher();
     }
   });
