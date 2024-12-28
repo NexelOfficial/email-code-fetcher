@@ -24,14 +24,14 @@ async fn list_last_message(access_token: &String) -> Result<String, Error> {
     Ok(message_id.to_string())
 }
 
-pub async fn get_last_message(app: &AppHandle) -> Result<String, Error> {
+pub async fn get_last_message(app: &AppHandle) -> Result<Value, Error> {
     let access_token = get_access_token().await?;
     let id = list_last_message(&access_token).await?;
     let last_email_mut = app.state::<Mutex<LastEmail>>();
     let mut last_email = last_email_mut.lock().await;
 
     if id.eq(&last_email.id) {
-        return Ok("".to_string());
+        return Ok(Value::default());
     }
 
     last_email.id = id.clone();
@@ -46,8 +46,8 @@ pub async fn get_last_message(app: &AppHandle) -> Result<String, Error> {
     if get_response.status().is_success() {
         let get_text = get_response.text().await?;
         let get_json: Value = serde_json::from_str(&get_text)?;
-        return Ok(get_json["snippet"].as_str().unwrap_or_default().to_string());
+        return Ok(get_json);
     }
 
-    Ok("".to_string())
+    Ok(Value::default())
 }

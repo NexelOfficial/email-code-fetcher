@@ -553,6 +553,7 @@ version = "0.1.0"
 dependencies = [
  "hyper",
  "open",
+ "regex",
  "reqwest",
  "rustls",
  "serde",

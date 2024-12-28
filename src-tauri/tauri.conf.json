@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Email Code Fetcher © Nathan Diepeveen",
+        "title": "Email Code Fetcher",
         "width": 450,
         "height": 600
       }

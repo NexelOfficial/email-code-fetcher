@@ -3,7 +3,7 @@ import { createSignal, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { FiCheck, FiCopy, FiHash } from "solid-icons/fi";
 
-import { Button } from "../components/Button";
+import { Container } from "../components/Container";
 
 const Notifiy = () => {
   const [copied, setCopied] = createSignal(false);
@@ -28,20 +28,31 @@ const Notifiy = () => {
   setTimeout(hide, 5000);
 
   return (
-    <main
-      class="flex items-center bg-white/90 rounded-lg py-1 px-2 transition-all"
+    <button
+      onClick={copyCode}
+      class="text-lg w-full relative transition-all"
       classList={{ "-translate-y-full": hidden() }}
     >
-      <h1 class="text-lg flex gap-x-1 items-center text-gray-800">
-        <FiHash />
-        <span>Your code: {code}</span>
-      </h1>
-      <div class="ml-auto">
-        <Show when={!copied()} fallback={<Button icon={FiCheck} />}>
-          <Button onClick={copyCode} icon={FiCopy} />
+      <Container class="pb-3">
+        <span>New code</span>
+        <FiHash class="ml-auto" />
+        <span class="font-bold">{code}</span>
+
+        <Show when={!copied()} fallback={<FiCheck />}>
+          <FiCopy class="ml-4" />
         </Show>
-      </div>
-    </main>
+
+        <div class="absolute w-2/3 z-10 bottom-0 left-1/2 h-1 -translate-x-1/2 bg-gray-300">
+          <div
+            class="h-1 z-10 bg-gray-800 duration-[5s] ease-linear"
+            classList={{
+              "w-0": !hidden(),
+              "w-full": hidden(),
+            }}
+          />
+        </div>
+      </Container>
+    </button>
   );
 };
 

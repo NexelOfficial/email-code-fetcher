@@ -27,7 +27,7 @@ export const StartupSetting = () => {
           "h-0 scale-y-0": !start.is(),
         }}
       >
-        <p class="flex gap-x-1 justify-center items-center text-gray-400">
+        <p class="flex gap-x-1 justify-center items-center text-gray-600">
           <FiInfo />
           <span>App will be started in tray.</span>
         </p>

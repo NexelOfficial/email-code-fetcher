@@ -1,4 +1,6 @@
+use regex::Regex;
 use rustls::crypto::ring;
+use serde::Serialize;
 use tauri::{
     async_runtime::Mutex,
     menu::{Menu, MenuItem},
@@ -14,16 +16,48 @@ pub struct LastEmail {
     id: String,
 }
 
+#[derive(Serialize, Default)]
+pub struct EmailCode {
+    value: String,
+    address: String,
+}
+
 #[tauri::command]
 async fn authenticate() {
     gmail::auth::get_access_token().await.unwrap();
 }
 
 #[tauri::command]
-async fn get_last_email(app: AppHandle) -> String {
-    gmail::message::get_last_message(&app)
+async fn get_last_email(app: AppHandle) -> EmailCode {
+    let message = gmail::message::get_last_message(&app)
         .await
-        .unwrap_or("ERR_NO_MAIL".to_string())
+        .unwrap_or_default();
+
+    let mut result = EmailCode::default();
+
+    // Extract code from message
+    let snippet = message["snippet"].as_str().unwrap_or_default();
+    let re = Regex::new(r"[^0-9][0-9]{6,8}[^0-9]").unwrap();
+    if let Some(mat) = re.find(snippet) {
+        let mat_str = mat.as_str();
+        let code = &mat_str[1..mat_str.len() - 1];
+        result.value = code.to_string();
+    }
+
+    // Extract sender
+    let headers = message["payload"]["headers"].clone();
+    if headers.is_array() {
+        for header in headers.as_array().unwrap() {
+            if !header["name"].eq("From") {
+                continue;
+            }
+
+            let from_value = header["value"].clone();
+            result.address = from_value.as_str().unwrap().to_string();
+        }
+    }
+
+    result
 }
 
 #[tauri::command]

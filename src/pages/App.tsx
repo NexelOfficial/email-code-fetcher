@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import {
+  FiAtSign,
   FiBox,
   FiClock,
   FiCopy,
@@ -18,10 +19,12 @@ import toast, { Toaster } from "solid-toast";
 import { Button } from "../components/Button";
 import { Category } from "../components/Category";
 import { StartupSetting } from "../features/StartupSetting";
+import { UpdateInterval } from "../features/UpdateInterval";
+import { Container } from "../components/Container";
 
-type Code = {
+type EmailCode = {
   value: string;
-  date: Date;
+  address: string;
 };
 
 const createNotification = (code: string) => {
@@ -42,11 +45,11 @@ const createNotification = (code: string) => {
 };
 
 const App = () => {
-  const [codes, setCodes] = createSignal<Code[]>([]);
+  const [codes, setCodes] = createSignal<EmailCode[]>([]);
   const [fetcher, setFetcher] = createSignal<number>();
 
-  const addCode = (code: string) => {
-    setCodes((old) => [...old, { value: code, date: new Date() }]);
+  const addCode = (code: EmailCode) => {
+    setCodes((old) => [...old, code]);
   };
 
   const startFetcher = async () => {
@@ -55,13 +58,11 @@ const App = () => {
 
     setFetcher(
       setInterval(async () => {
-        const snippet = (await invoke("get_last_email")) as string;
-        const matches = snippet.match(/[^0-9][0-9]{6,8}[^0-9]/) || [];
+        const message = await invoke<EmailCode>("get_last_email");
 
-        if (matches[0]) {
-          const newCode = matches[0].slice(1, matches[0].length - 1);
-          addCode(newCode);
-          createNotification(newCode);
+        if (message.value) {
+          addCode(message);
+          createNotification(message.value);
         }
       }, 5000)
     );
@@ -83,6 +84,13 @@ const App = () => {
     await invoke("authenticate");
   };
 
+  const extractEmail = (address: string) => {
+    const matches = address.match(/<[^]+>/g) || [];
+    const email = matches[0];
+    
+    return email?.slice(1, email.length - 1) || address;
+  };
+
   // Make sure to start the fetcher on startup
   createEffect(async () => {
     const messages = await getMatches();
@@ -92,7 +100,7 @@ const App = () => {
   });
 
   return (
-    <main class="flex flex-col h-screen">
+    <main class="flex flex-col min-h-screen bg-gray-100">
       <div class="mb-2 bg-blue-800 text-white py-2 px-4">
         <h1 class="font-semibold text-xl">Email Code Fetcher</h1>
       </div>
@@ -118,6 +126,7 @@ const App = () => {
       </Category>
       <Category text="Settings" icon={FiSettings}>
         <StartupSetting />
+        <UpdateInterval />
       </Category>
       <Category text="Latest codes" icon={FiList}>
         <div class="px-2 flex flex-col gap-2">
@@ -129,22 +138,34 @@ const App = () => {
               </p>
             }
           >
-            <For
-              each={codes().sort((a, b) => a.date.getDate() - b.date.getDate())}
-            >
+            <For each={codes()}>
               {(code) => (
-                <p class="flex items-center gap-x-1">
-                  <FiClock />
-                  <span>{code.date.toLocaleTimeString()}</span>
-                  <FiHash class="ml-6" />
-                  <span class="mr-2">{code.value}</span>
-                  <Button
-                    onClick={() => navigator.clipboard.writeText(code.value)}
-                    icon={FiCopy}
-                    successIcon
-                    small
-                  />
-                </p>
+                <button
+                  onClick={async () => {
+                    navigator.clipboard.writeText(code.value);
+                    toast.success("Copied to clipboard.");
+                  }}
+                >
+                  <Container>
+                    <div>
+                      <div class="flex gap-x-6">
+                        <p class="flex items-center gap-x-1">
+                          <FiClock />
+                          <span>{new Date().toLocaleTimeString()}</span>
+                        </p>
+                        <p class="flex items-center gap-x-1">
+                          <FiHash />
+                          <span>{code.value}</span>
+                        </p>
+                      </div>
+                      <p class="flex items-center gap-x-1">
+                        <FiAtSign />
+                        <span>{extractEmail(code.address)}</span>
+                      </p>
+                    </div>
+                    <FiCopy class="ml-auto" />
+                  </Container>
+                </button>
               )}
             </For>
           </Show>

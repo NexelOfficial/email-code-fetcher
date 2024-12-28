@@ -1,5 +1,6 @@
 import { createSignal } from "solid-js";
 import { FiCheck } from "solid-icons/fi";
+import { Container } from "./Container";
 
 type CheckboxProps = {
   text: string;
@@ -11,12 +12,12 @@ export const Checkbox = (props: CheckboxProps) => {
   const [checked, setChecked] = createSignal(props.default || false);
 
   return (
-    <div
+    <Container
       onClick={() => {
         setChecked(!checked());
         props.onCheck();
       }}
-      class="cursor-pointer bg-white border-2 flex items-center px-4 py-2 gap-x-2 rounded border-gray-200"
+      class="cursor-pointer"
     >
       <p>{props.text}</p>
       <div class="relative size-5 ml-auto">
@@ -31,6 +32,6 @@ export const Checkbox = (props: CheckboxProps) => {
         />
         <FiCheck class="top-0 absolute size-full p-1 text-white" />
       </div>
-    </div>
+    </Container>
   );
 };
