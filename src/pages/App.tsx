@@ -33,13 +33,14 @@ const App = () => {
     setFetcher(
       setInterval(async () => {
         const snippet = (await invoke("get_last_email")) as string;
-        const matches = snippet.match(/[0-9]{6}/) || [];
-        setCode(matches[0] || "");
+        const matches = snippet.match(/[^0-9][0-9]{6,8}[^0-9]/) || [];
 
         if (matches[0]) {
-          createNotification(code());
+          const newCode = matches[0].slice(1, matches[0].length - 1);
+          setCode(newCode);
+          createNotification(newCode);
         }
-      }, 10000)
+      }, 3000)
     );
 
     toast.success(
