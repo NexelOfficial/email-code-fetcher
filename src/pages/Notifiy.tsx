@@ -20,7 +20,7 @@ const Notifiy = () => {
     navigator.clipboard.writeText(code);
 
     setCopied(true);
-    setTimeout(hide, 500)
+    setTimeout(hide, 500);
   };
 
   // Animate the window opening and closing
@@ -29,7 +29,7 @@ const Notifiy = () => {
 
   return (
     <main
-      class="h-screen flex items-center bg-white/90 rounded-lg py-1 px-2 transition-all"
+      class="flex items-center bg-white/90 rounded-lg py-1 px-2 transition-all"
       classList={{ "-translate-y-full": hidden() }}
     >
       <h1 class="text-lg flex gap-x-1 items-center text-gray-800">

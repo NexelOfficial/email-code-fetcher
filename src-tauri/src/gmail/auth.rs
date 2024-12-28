@@ -6,6 +6,8 @@ use yup_oauth2::authenticator_delegate::InstalledFlowDelegate;
 #[derive(Copy, Clone)]
 struct InstalledFlowBrowserDelegate;
 
+const CREDENTIALS: &str = include_str!("../../credentials.json");
+
 impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
     fn present_user_url<'a>(
         &'a self,
@@ -18,10 +20,7 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
 }
 
 pub async fn get_access_token() -> Result<String, yup_oauth2::Error> {
-    let secret = yup_oauth2::read_application_secret("credentials.json")
-        .await
-        .expect("Invalid credentials.json");
-
+    let secret = yup_oauth2::parse_application_secret(CREDENTIALS).unwrap();
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,

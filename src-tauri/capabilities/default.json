@@ -2,10 +2,19 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "notification"],
+  "windows": [
+    "main",
+    "notification"
+  ],
   "permissions": [
+    "cli:default",
     "core:default",
-    "opener:default",
-    "core:webview:allow-create-webview-window"
+    "core:tray:allow-new",
+    "core:webview:allow-create-webview-window",
+    "core:window:allow-hide",
+    "core:window:allow-show",
+    "core:app:allow-default-window-icon",
+    "autostart:allow-enable",
+    "autostart:allow-disable"
   ]
 }

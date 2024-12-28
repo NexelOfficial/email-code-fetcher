@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "code-fetcher",
+  "productName": "Email Code Fetcher",
   "version": "0.1.0",
   "identifier": "com.code-fetcher.app",
   "build": {
@@ -12,8 +12,8 @@
   "app": {
     "windows": [
       {
-        "title": "code-fetcher",
-        "width": 800,
+        "title": "Email Code Fetcher © Nathan Diepeveen",
+        "width": 450,
         "height": 600
       }
     ],
@@ -26,11 +26,21 @@
     "active": true,
     "targets": "all",
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
       "icons/icon.icns",
-      "icons/icon.ico"
+      "icons/icon.ico",
+      "icons/icon.png"
     ]
+  },
+  "plugins": {
+    "cli": {
+      "description": "Email Code Detector arguments",
+      "args": [
+        {
+          "short": "t",
+          "name": "tray",
+          "description": "Start app in tray"
+        }
+      ]
+    }
   }
 }
