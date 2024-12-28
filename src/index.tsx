@@ -6,6 +6,8 @@ import App from "./pages/App";
 import Notifiy from "./pages/Notifiy";
 import "./index.css";
 
+document.addEventListener("contextmenu", (event) => event.preventDefault());
+
 render(
   () => (
     <Router>
