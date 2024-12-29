@@ -21,8 +21,8 @@ pub async fn get_all_users(app_handle: &AppHandle) -> Result<Vec<UserInfo>, Box<
         let stem = path.file_stem().unwrap_or_default();
         if let Some(name) = stem.to_str() {
             let id = name.to_string();
-            let token = auth::get_access_token(app_handle, id.clone()).await?;
-            let info = get_user(&token, id.clone()).await?;
+            let token = auth::get_access_token(app_handle, &id).await?;
+            let info = get_user(&token, &id).await?;
 
             tokens.push(info);
         }
@@ -31,7 +31,7 @@ pub async fn get_all_users(app_handle: &AppHandle) -> Result<Vec<UserInfo>, Box<
     Ok(tokens)
 }
 
-pub async fn get_user(access_token: &String, id: String) -> Result<UserInfo, Box<dyn Error>> {
+pub async fn get_user(access_token: &String, id: &String) -> Result<UserInfo, Box<dyn Error>> {
     let reqwest_client = Client::new();
     let info_url = "https://www.googleapis.com/oauth2/v3/userinfo";
     let info_response = reqwest_client
@@ -45,7 +45,7 @@ pub async fn get_user(access_token: &String, id: String) -> Result<UserInfo, Box
     let email = info_json["email"].as_str().unwrap_or_default();
 
     Ok(UserInfo {
-        id,
+        id: id.clone(),
         email: email.to_string(),
     })
 }

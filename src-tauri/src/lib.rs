@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use gmail::UserInfo;
 use regex::Regex;
 use rustls::crypto::ring;
@@ -12,10 +14,7 @@ use tauri_plugin_cli::CliExt;
 
 mod gmail;
 
-#[derive(Default)]
-pub struct LastEmail {
-    id: String,
-}
+type LastEmails = HashMap<String, String>;
 
 #[derive(Serialize, Default)]
 pub struct EmailCode {
@@ -32,13 +31,9 @@ async fn remove_user(app: AppHandle, id: String) {
 
 #[tauri::command]
 async fn get_user(app: AppHandle, id: String) -> UserInfo {
-    let token = gmail::auth::get_access_token(&app, id.clone())
-        .await
-        .unwrap();
+    let token = gmail::auth::get_access_token(&app, &id).await.unwrap();
 
-    gmail::info::get_user(&token, id.clone())
-        .await
-        .unwrap_or_default()
+    gmail::info::get_user(&token, &id).await.unwrap_or_default()
 }
 
 #[tauri::command]
@@ -48,7 +43,7 @@ async fn get_users(app: AppHandle) -> Vec<UserInfo> {
 
 #[tauri::command]
 async fn get_last_email(app: AppHandle, id: String) -> EmailCode {
-    let message = gmail::message::get_last_message(&app, id)
+    let message = gmail::message::get_last_message(&app, &id)
         .await
         .unwrap_or_default();
 
@@ -105,7 +100,7 @@ pub fn run() {
         .plugin(tauri_plugin_cli::init())
         .setup(|app| {
             // Create a state to store the last email
-            app.manage(Mutex::new(LastEmail::default()));
+            app.manage(Mutex::new(LastEmails::default()));
 
             // Hide app if started from tray
             let matches = app.cli().matches()?;

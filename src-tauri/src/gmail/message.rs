@@ -2,7 +2,7 @@ use reqwest::Client;
 use serde_json::Value;
 use tauri::{async_runtime::Mutex, AppHandle, Manager};
 
-use crate::LastEmail;
+use crate::LastEmails;
 
 use super::auth::get_access_token;
 
@@ -24,19 +24,19 @@ async fn list_last_message(access_token: &String) -> Result<String, Error> {
     Ok(message_id.to_string())
 }
 
-pub async fn get_last_message(app: &AppHandle, id: String) -> Result<Value, Error> {
+pub async fn get_last_message(app: &AppHandle, id: &String) -> Result<Value, Error> {
     let access_token = get_access_token(app, id).await?;
-    let id = list_last_message(&access_token).await?;
-    let last_email_mut = app.state::<Mutex<LastEmail>>();
-    let mut last_email = last_email_mut.lock().await;
+    let mess_id = list_last_message(&access_token).await?;
+    let last_email_mut = app.state::<Mutex<LastEmails>>();
+    let mut last_emails = last_email_mut.lock().await;
 
-    if id.eq(&last_email.id) {
+    if mess_id.eq(last_emails.get(id).unwrap_or(&"".to_string())) {
         return Ok(Value::default());
     }
 
-    last_email.id = id.clone();
+    last_emails.insert(id.clone(), mess_id.clone());
     let reqwest_client = Client::new();
-    let get_url = format!("https://gmail.googleapis.com/gmail/v1/users/me/messages/{id}",);
+    let get_url = format!("https://gmail.googleapis.com/gmail/v1/users/me/messages/{mess_id}",);
     let get_response = reqwest_client
         .get(get_url)
         .bearer_auth(&access_token)

@@ -45,7 +45,7 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
 
 pub async fn get_access_token(
     app_handle: &AppHandle,
-    id: String,
+    id: &String,
 ) -> Result<String, Box<dyn Error>> {
     let tokens_dir = app_handle
         .path()
