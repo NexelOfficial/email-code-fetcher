@@ -10,8 +10,8 @@ import {
   FiPlay,
   FiSettings,
   FiSquare,
+  FiUser,
 } from "solid-icons/fi";
-import { ImGoogle } from "solid-icons/im";
 import toast, { Toaster } from "solid-toast";
 
 import { Button } from "../components/Button";
@@ -19,8 +19,9 @@ import { Category } from "../components/Category";
 import { StartupSetting } from "../features/StartupSetting";
 import { UpdateInterval } from "../features/UpdateInterval";
 import { Container } from "../components/Container";
-import { authenticate, EmailCode, useFetcher } from "../fetcher";
+import { EmailCode, useFetcher } from "../fetcher";
 import { AuthenticationModal } from "../features/AuthenticationModal";
+import { AccountManager } from "../features/AccountManager";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
@@ -54,28 +55,26 @@ const App = () => {
       </div>
       <Toaster position="bottom-center" />
       <Category text="Controls" icon={FiBox}>
-        <div class="grid grid-cols-2 gap-x-2">
-          <Button icon={ImGoogle} onClick={authenticate} successIcon>
-            <span>Login with Google</span>
-          </Button>
-          <Show
-            when={stopped()}
-            fallback={
-              <Button active icon={FiSquare} onClick={stop}>
-                <span>Stop receiving codes</span>
-              </Button>
-            }
-          >
-            <Button
-              icon={FiPlay}
-              onClick={async () => {
-                await start(addCode);
-              }}
-            >
-              <span>Start receiving codes</span>
+        <Show
+          when={stopped()}
+          fallback={
+            <Button active icon={FiSquare} onClick={stop}>
+              <span>Stop receiving codes</span>
             </Button>
-          </Show>
-        </div>
+          }
+        >
+          <Button
+            icon={FiPlay}
+            onClick={async () => {
+              await start(addCode);
+            }}
+          >
+            <span>Start receiving codes</span>
+          </Button>
+        </Show>
+      </Category>
+      <Category text="Accounts" icon={FiUser}>
+        <AccountManager />
       </Category>
       <Category text="Settings" icon={FiSettings}>
         <StartupSetting />

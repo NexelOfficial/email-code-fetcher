@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::fs;
 use std::{future::Future, pin::Pin};
 
 use tauri::path::BaseDirectory;
@@ -42,16 +43,26 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
     }
 }
 
-pub async fn get_access_token(app_handle: &AppHandle) -> Result<String, Box<dyn Error>> {
-    let token_path = app_handle
+pub async fn get_access_token(
+    app_handle: &AppHandle,
+    id: String,
+) -> Result<String, Box<dyn Error>> {
+    let tokens_dir = app_handle
         .path()
-        .resolve("token_store.json", BaseDirectory::LocalData)?;
+        .resolve("tokens", BaseDirectory::Resource)?;
+
+    // Make sure token path exists
+    if !tokens_dir.exists() {
+        fs::create_dir_all(tokens_dir.as_path())?;
+    }
+
+    let token_path = format!("{}/{}.json", tokens_dir.to_str().unwrap_or_default(), id);
     let secret = yup_oauth2::parse_application_secret(CREDENTIALS)?;
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
     )
-    .persist_tokens_to_disk(token_path.to_str().unwrap_or("token_store.json"))
+    .persist_tokens_to_disk(token_path)
     .flow_delegate(Box::new(InstalledFlowBrowserDelegate::new(
         app_handle.clone(),
     )))
@@ -60,8 +71,9 @@ pub async fn get_access_token(app_handle: &AppHandle) -> Result<String, Box<dyn 
 
     let access_token = auth
         .token(&[
-            "https://www.googleapis.com/auth/gmail.readonly",
             "https://www.googleapis.com/auth/gmail.addons.current.message.readonly",
+            "https://www.googleapis.com/auth/gmail.readonly",
+            "https://www.googleapis.com/auth/userinfo.email",
         ])
         .await?;
     let token = access_token.token().unwrap_or_default();

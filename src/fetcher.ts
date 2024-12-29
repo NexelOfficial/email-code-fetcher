@@ -8,6 +8,11 @@ export type EmailCode = {
   address: string;
 };
 
+export type UserInfo = {
+  id: string;
+  email: string;
+};
+
 const createNotification = (code: string) => {
   const webview = new WebviewWindow("notification", {
     width: 300,
@@ -29,21 +34,24 @@ export const useFetcher = () => {
   const [stopped, setStopped] = createSignal(true);
   const [ready, setReady] = createSignal(true);
 
-  const fetch = async (callback: (code: EmailCode) => void) => {
+  const fetch = async (id: string, callback: (code: EmailCode) => void) => {
     // Stop trigger
     if (stopped()) {
       return setReady(true);
     }
 
     // Extract code from last email
-    const message = await invoke<EmailCode>("get_last_email");
+    const message = await invoke<EmailCode>("get_last_email", {
+      id,
+    });
+
     if (message.value) {
       callback(message);
       createNotification(message.value);
     }
 
     // Run again after 5 seconds
-    setTimeout(() => fetch(callback), 5000);
+    setTimeout(() => fetch(id, callback), 5000);
   };
 
   const start = async (callback: (code: EmailCode) => void) => {
@@ -53,9 +61,15 @@ export const useFetcher = () => {
 
     setStopped(false);
 
-    // Authenticate first
-    await authenticate();
-    await fetch(callback);
+    // Remove duplicate emails
+    const users = await getUsers();
+    const unique = Array.from(
+      new Map(users.map((item) => [item.email, item])).values()
+    );
+
+    for (const user of unique) {
+      await fetch(user.id, callback);
+    }
 
     toast.success(
       "Succesfully started the code fetcher. Updating at 5-second interval."
@@ -73,6 +87,21 @@ export const useFetcher = () => {
   return { stopped, start, stop };
 };
 
-export const authenticate = async () => {
-  await invoke("authenticate");
+export const getUsers = async () => {
+  const info = await invoke("get_users");
+  return info as UserInfo[];
+};
+
+export const getUser = async (id?: string) => {
+  // If no ID is given, a new user is being created
+  if (!id) {
+    id = Math.floor(Math.random() * 2e8).toString();
+  }
+
+  const info = await invoke("get_user", { id });
+  return info as UserInfo;
+};
+
+export const removeUser = async (id: string) => {
+  await invoke("remove_user", { id });
 };

@@ -1,3 +1,4 @@
+use gmail::UserInfo;
 use regex::Regex;
 use rustls::crypto::ring;
 use serde::Serialize;
@@ -23,13 +24,31 @@ pub struct EmailCode {
 }
 
 #[tauri::command]
-async fn authenticate(app: AppHandle) {
-    gmail::auth::get_access_token(&app).await.unwrap();
+async fn remove_user(app: AppHandle, id: String) {
+    gmail::info::remove_user(&app, &id)
+        .await
+        .unwrap_or_default();
 }
 
 #[tauri::command]
-async fn get_last_email(app: AppHandle) -> EmailCode {
-    let message = gmail::message::get_last_message(&app)
+async fn get_user(app: AppHandle, id: String) -> UserInfo {
+    let token = gmail::auth::get_access_token(&app, id.clone())
+        .await
+        .unwrap();
+
+    gmail::info::get_user(&token, id.clone())
+        .await
+        .unwrap_or_default()
+}
+
+#[tauri::command]
+async fn get_users(app: AppHandle) -> Vec<UserInfo> {
+    gmail::info::get_all_users(&app).await.unwrap_or_default()
+}
+
+#[tauri::command]
+async fn get_last_email(app: AppHandle, id: String) -> EmailCode {
+    let message = gmail::message::get_last_message(&app, id)
         .await
         .unwrap_or_default();
 
@@ -125,9 +144,11 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            authenticate,
             get_last_email,
-            close_notification
+            close_notification,
+            get_user,
+            get_users,
+            remove_user
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -24,8 +24,8 @@ async fn list_last_message(access_token: &String) -> Result<String, Error> {
     Ok(message_id.to_string())
 }
 
-pub async fn get_last_message(app: &AppHandle) -> Result<Value, Error> {
-    let access_token = get_access_token(app).await?;
+pub async fn get_last_message(app: &AppHandle, id: String) -> Result<Value, Error> {
+    let access_token = get_access_token(app, id).await?;
     let id = list_last_message(&access_token).await?;
     let last_email_mut = app.state::<Mutex<LastEmail>>();
     let mut last_email = last_email_mut.lock().await;
