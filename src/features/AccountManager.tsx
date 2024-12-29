@@ -15,8 +15,8 @@ export const AccountManager = () => {
   createEffect(getAccounts);
 
   return (
-    <div>
-      <div class="mb-4">
+    <div class="flex flex-col">
+      <div class="mb-2">
         <For each={users()}>
           {(user) => (
             <Container>
@@ -39,13 +39,15 @@ export const AccountManager = () => {
           )}
         </For>
       </div>
-      <Button
-        icon={ImGoogle}
-        onClick={async () => addAccount(await getUser())}
-        successIcon
-      >
-        <span>Add Google account</span>
-      </Button>
+      <div class="mx-auto">
+        <Button
+          icon={ImGoogle}
+          onClick={async () => addAccount(await getUser())}
+          successIcon
+        >
+          <span>Add Google account</span>
+        </Button>
+      </div>
     </div>
   );
 };

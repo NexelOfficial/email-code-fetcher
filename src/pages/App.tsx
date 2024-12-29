@@ -25,7 +25,7 @@ import { AccountManager } from "../features/AccountManager";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
-  const { start, stop, stopped } = useFetcher();
+  const { start, stop, running } = useFetcher();
 
   const addCode = (code: EmailCode) => {
     setCodes((old) => [...old, code]);
@@ -56,27 +56,22 @@ const App = () => {
       <Toaster position="bottom-center" />
       <Category text="Controls" icon={FiBox}>
         <Show
-          when={stopped()}
+          when={running().length === 0}
           fallback={
             <Button active icon={FiSquare} onClick={stop}>
               <span>Stop receiving codes</span>
             </Button>
           }
         >
-          <Button
-            icon={FiPlay}
-            onClick={async () => {
-              await start(addCode);
-            }}
-          >
+          <Button icon={FiPlay} onClick={async () => await start(addCode)}>
             <span>Start receiving codes</span>
           </Button>
         </Show>
       </Category>
-      <Category text="Accounts" icon={FiUser}>
+      <Category text="Accounts" icon={FiUser} hidden>
         <AccountManager />
       </Category>
-      <Category text="Settings" icon={FiSettings}>
+      <Category text="Settings" icon={FiSettings} hidden>
         <StartupSetting />
         <UpdateInterval />
       </Category>

@@ -13,6 +13,8 @@ export type UserInfo = {
   email: string;
 };
 
+type LongId = [string, Date];
+
 const createNotification = (code: string) => {
   const webview = new WebviewWindow("notification", {
     width: 300,
@@ -31,18 +33,17 @@ const createNotification = (code: string) => {
 };
 
 export const useFetcher = () => {
-  const [stopped, setStopped] = createSignal(true);
-  const [ready, setReady] = createSignal(true);
+  const [running, setRunning] = createSignal<LongId[]>([]);
 
-  const fetch = async (id: string, callback: (code: EmailCode) => void) => {
+  const fetch = async (longId: LongId, callback: (code: EmailCode) => void) => {
     // Stop trigger
-    if (stopped()) {
-      return setReady(true);
+    if (!running().includes(longId)) {
+      return;
     }
 
     // Extract code from last email
     const message = await invoke<EmailCode>("get_last_email", {
-      id,
+      id: longId[0],
     });
 
     if (message.value) {
@@ -51,15 +52,13 @@ export const useFetcher = () => {
     }
 
     // Run again after 5 seconds
-    setTimeout(() => fetch(id, callback), 5000);
+    setTimeout(() => fetch(longId, callback), 5000);
   };
 
   const start = async (callback: (code: EmailCode) => void) => {
-    if (!ready()) {
+    if (running().length > 0) {
       return toast.error("Fetcher is not ready yet.");
     }
-
-    setStopped(false);
 
     // Remove duplicate emails
     const users = await getUsers();
@@ -67,8 +66,18 @@ export const useFetcher = () => {
       new Map(users.map((item) => [item.email, item])).values()
     );
 
+    // Check for no account
+    if (users.length === 0) {
+      return toast.error(
+        "No accounts were added. Add one under the 'Accounts' tab."
+      );
+    }
+
+    // Create a LongId for each user
     for (const user of unique) {
-      await fetch(user.id, callback);
+      const longId: LongId = [user.id, new Date()];
+      setRunning((r) => [...r, longId]);
+      await fetch(longId, callback);
     }
 
     toast.success(
@@ -77,14 +86,13 @@ export const useFetcher = () => {
   };
 
   const stop = async () => {
-    setStopped(true);
-    setReady(false);
+    setRunning([]);
 
     await invoke("close_notification");
     toast.success("Succesfully stopped the code fetcher.");
   };
 
-  return { stopped, start, stop };
+  return { running, start, stop };
 };
 
 export const getUsers = async () => {
