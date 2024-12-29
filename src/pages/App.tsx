@@ -1,5 +1,3 @@
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { invoke } from "@tauri-apps/api/core";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import {
@@ -21,73 +19,21 @@ import { Category } from "../components/Category";
 import { StartupSetting } from "../features/StartupSetting";
 import { UpdateInterval } from "../features/UpdateInterval";
 import { Container } from "../components/Container";
-
-type EmailCode = {
-  value: string;
-  address: string;
-};
-
-const createNotification = (code: string) => {
-  const webview = new WebviewWindow("notification", {
-    width: 300,
-    height: 50,
-    transparent: true,
-    alwaysOnTop: true,
-    decorations: false,
-    dragDropEnabled: false,
-    shadow: false,
-    y: 8,
-    x: 8,
-    url: `notification/${code}`,
-  });
-
-  webview.once("tauri://error", (e) => console.error(e));
-};
+import { authenticate, EmailCode, useFetcher } from "../fetcher";
+import { AuthenticationModal } from "../features/AuthenticationModal";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
-  const [fetcher, setFetcher] = createSignal<number>();
+  const { start, stop, stopped } = useFetcher();
 
   const addCode = (code: EmailCode) => {
     setCodes((old) => [...old, code]);
   };
 
-  const startFetcher = async () => {
-    // Authenticate first
-    await authenticate();
-
-    setFetcher(
-      setInterval(async () => {
-        const message = await invoke<EmailCode>("get_last_email");
-
-        if (message.value) {
-          addCode(message);
-          createNotification(message.value);
-        }
-      }, 5000)
-    );
-
-    toast.success(
-      "Succesfully started the code fetcher. Updating at 5-second interval."
-    );
-  };
-
-  const stopFetcher = async () => {
-    clearInterval(fetcher());
-    setFetcher();
-
-    await invoke("close_notification");
-    toast.success("Succesfully stopped the code fetcher.");
-  };
-
-  const authenticate = async () => {
-    await invoke("authenticate");
-  };
-
   const extractEmail = (address: string) => {
     const matches = address.match(/<[^]+>/g) || [];
     const email = matches[0];
-    
+
     return email?.slice(1, email.length - 1) || address;
   };
 
@@ -95,12 +41,14 @@ const App = () => {
   createEffect(async () => {
     const messages = await getMatches();
     if (messages.args.tray.value) {
-      await startFetcher();
+      await start(addCode);
     }
   });
 
   return (
     <main class="flex flex-col min-h-screen bg-gray-100">
+      <AuthenticationModal />
+
       <div class="mb-2 bg-blue-800 text-white py-2 px-4">
         <h1 class="font-semibold text-xl">Email Code Fetcher</h1>
       </div>
@@ -111,14 +59,19 @@ const App = () => {
             <span>Login with Google</span>
           </Button>
           <Show
-            when={!fetcher()}
+            when={stopped()}
             fallback={
-              <Button active icon={FiSquare} onClick={stopFetcher}>
+              <Button active icon={FiSquare} onClick={stop}>
                 <span>Stop receiving codes</span>
               </Button>
             }
           >
-            <Button icon={FiPlay} onClick={startFetcher}>
+            <Button
+              icon={FiPlay}
+              onClick={async () => {
+                await start(addCode);
+              }}
+            >
               <span>Start receiving codes</span>
             </Button>
           </Show>

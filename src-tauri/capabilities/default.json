@@ -7,6 +7,7 @@
     "notification"
   ],
   "permissions": [
+    "opener:default",
     "cli:default",
     "core:default",
     "core:tray:allow-new",
@@ -15,6 +16,7 @@
     "core:window:allow-show",
     "core:app:allow-default-window-icon",
     "autostart:allow-enable",
-    "autostart:allow-disable"
+    "autostart:allow-disable",
+    "opener:allow-open-url"
   ]
 }

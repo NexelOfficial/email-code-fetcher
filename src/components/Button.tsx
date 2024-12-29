@@ -4,7 +4,7 @@ import { FiCheck, FiLoader } from "solid-icons/fi";
 import { Container } from "./Container";
 
 type ButtonProps = {
-  onClick?: () => Promise<void>;
+  onClick?: () => Promise<any> | any;
   icon?: IconTypes;
   successIcon?: boolean;
   active?: boolean;
@@ -15,14 +15,14 @@ export const Button = (props: ButtonProps) => {
   const [loading, setLoading] = createSignal(false);
   const [success, setSuccess] = createSignal(false);
 
-  const clickPromise = () => {
+  const clickPromise = async () => {
     if (props.onClick) {
       setLoading(true);
-      props.onClick().then(() => {
-        setLoading(false);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 2000);
-      });
+      await props.onClick();
+
+      setLoading(false);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
     }
   };
 

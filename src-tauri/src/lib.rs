@@ -23,8 +23,8 @@ pub struct EmailCode {
 }
 
 #[tauri::command]
-async fn authenticate() {
-    gmail::auth::get_access_token().await.unwrap();
+async fn authenticate(app: AppHandle) {
+    gmail::auth::get_access_token(&app).await.unwrap();
 }
 
 #[tauri::command]
@@ -78,6 +78,7 @@ pub fn run() {
         .expect("Failed to install rustls crypto provider.");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
             Some(vec!["--tray"]),

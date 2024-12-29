@@ -38,7 +38,7 @@ const Notifiy = () => {
         <FiHash class="ml-auto" />
         <span class="font-bold">{code}</span>
 
-        <Show when={!copied()} fallback={<FiCheck />}>
+        <Show when={!copied()} fallback={<FiCheck class="ml-4" />}>
           <FiCopy class="ml-4" />
         </Show>
 
