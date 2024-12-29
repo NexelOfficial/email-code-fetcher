@@ -1,5 +1,7 @@
+use std::error::Error;
 use std::{future::Future, pin::Pin};
 
+use tauri::path::BaseDirectory;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_opener::open_url;
 use yup_oauth2;
@@ -40,13 +42,16 @@ impl InstalledFlowDelegate for InstalledFlowBrowserDelegate {
     }
 }
 
-pub async fn get_access_token(app_handle: &AppHandle) -> Result<String, yup_oauth2::Error> {
-    let secret = yup_oauth2::parse_application_secret(CREDENTIALS).unwrap();
+pub async fn get_access_token(app_handle: &AppHandle) -> Result<String, Box<dyn Error>> {
+    let token_path = app_handle
+        .path()
+        .resolve("token_store.json", BaseDirectory::LocalData)?;
+    let secret = yup_oauth2::parse_application_secret(CREDENTIALS)?;
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
         yup_oauth2::InstalledFlowReturnMethod::HTTPRedirect,
     )
-    .persist_tokens_to_disk("token_store.json")
+    .persist_tokens_to_disk(token_path.to_str().unwrap_or("token_store.json"))
     .flow_delegate(Box::new(InstalledFlowBrowserDelegate::new(
         app_handle.clone(),
     )))
