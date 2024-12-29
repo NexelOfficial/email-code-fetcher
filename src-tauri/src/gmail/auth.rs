@@ -56,7 +56,7 @@ pub async fn get_access_token(
         fs::create_dir_all(tokens_dir.as_path())?;
     }
 
-    let token_path = format!("{}/{}.json", tokens_dir.to_str().unwrap_or_default(), id);
+    let token_path = tokens_dir.join(format!("{id}.json"));
     let secret = yup_oauth2::parse_application_secret(CREDENTIALS)?;
     let auth = yup_oauth2::InstalledFlowAuthenticator::builder(
         secret,
