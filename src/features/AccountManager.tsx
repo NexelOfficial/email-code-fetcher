@@ -9,7 +9,6 @@ import { getUser, getUsers, removeUser, UserInfo } from "../fetcher";
 export const AccountManager = () => {
   const [users, setUsers] = createSignal<UserInfo[]>([]);
 
-  const addAccount = (account: UserInfo) => setUsers((o) => [...o, account]);
   const getAccounts = async () => setUsers(await getUsers());
 
   createEffect(getAccounts);
@@ -42,7 +41,10 @@ export const AccountManager = () => {
       <div class="mx-auto">
         <Button
           icon={ImGoogle}
-          onClick={async () => addAccount(await getUser())}
+          onClick={async () => {
+            await getUser();
+            await getAccounts();
+          }}
           successIcon
         >
           <span>Add Google account</span>

@@ -4,6 +4,7 @@ use gmail::UserInfo;
 use regex::Regex;
 use rustls::crypto::ring;
 use serde::Serialize;
+use serde_json::Value;
 use tauri::{
     async_runtime::Mutex,
     menu::{Menu, MenuItem},
@@ -12,6 +13,7 @@ use tauri::{
 };
 use tauri_plugin_cli::CliExt;
 
+mod accounts;
 mod gmail;
 
 type LastEmails = HashMap<String, String>;
@@ -24,21 +26,23 @@ pub struct EmailCode {
 
 #[tauri::command]
 async fn remove_user(app: AppHandle, id: String) {
-    gmail::info::remove_user(&app, &id)
-        .await
-        .unwrap_or_default();
+    accounts::info::remove_user(&app, &id).unwrap();
 }
 
 #[tauri::command]
 async fn get_user(app: AppHandle, id: String) -> UserInfo {
     let token = gmail::auth::get_access_token(&app, &id).await.unwrap();
+    let user = accounts::info::get_user_from_token(&token, &id)
+        .await
+        .unwrap_or_default();
 
-    gmail::info::get_user(&token, &id).await.unwrap_or_default()
+    accounts::info::store_user(&app, &user).unwrap_or_default();
+    return user;
 }
 
 #[tauri::command]
-async fn get_users(app: AppHandle) -> Vec<UserInfo> {
-    gmail::info::get_all_users(&app).await.unwrap_or_default()
+fn get_users(app: AppHandle) -> Value {
+    accounts::info::get_all_users(&app).unwrap_or_default()
 }
 
 #[tauri::command]

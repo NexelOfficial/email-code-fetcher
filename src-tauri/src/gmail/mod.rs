@@ -1,11 +1,10 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub mod auth;
-pub mod info;
 pub mod message;
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Deserialize, Default, Debug)]
 pub struct UserInfo {
-    id: String,
-    email: String,
+    pub(crate) id: String,
+    pub(crate) email: String,
 }

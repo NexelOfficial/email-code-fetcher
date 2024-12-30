@@ -97,7 +97,7 @@ export const useFetcher = () => {
 
 export const getUsers = async () => {
   const info = await invoke("get_users");
-  return info as UserInfo[];
+  return Object.values(info!) as UserInfo[];
 };
 
 export const getUser = async (id?: string) => {
