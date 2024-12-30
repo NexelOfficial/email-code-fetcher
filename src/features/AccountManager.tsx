@@ -20,7 +20,7 @@ export const AccountManager = (props: AccountManagerProps) => {
 
   return (
     <div class="flex flex-col">
-      <div class="mb-2 gap-2">
+      <div class="mb-2 space-y-2">
         <For each={users()}>
           {(user) => (
             <Container>
