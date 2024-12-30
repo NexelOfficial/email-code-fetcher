@@ -1,11 +1,13 @@
 import { createEffect, createSignal } from "solid-js";
 
-export const useSetting = (key: string) => {
+export const useSetting = (key: string, def?: string) => {
   const [setting, setSetting] = createSignal("");
 
   const stored = localStorage.getItem(`app.v1.settings.${key}`);
   if (stored) {
     setSetting(stored);
+  } else if (def) {
+    setSetting(def);
   }
 
   createEffect(() => localStorage.setItem(`app.v1.settings.${key}`, setting()));

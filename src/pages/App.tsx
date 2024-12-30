@@ -22,6 +22,7 @@ import { EmailCode, useFetcher } from "../fetcher";
 import { AuthenticationModal } from "../features/AuthenticationModal";
 import { AccountManager } from "../features/AccountManager";
 import { DarkModeSetting } from "../features/DarkModeSetting";
+import { ConnectionSetting } from "../features/ConnectionSetting";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
@@ -74,6 +75,7 @@ const App = () => {
       <Category text="Settings" icon={FiSettings} hidden>
         <StartupSetting />
         <DarkModeSetting />
+        <ConnectionSetting />
         <NotificationTime />
       </Category>
       <Category text="Latest codes" icon={FiList}>

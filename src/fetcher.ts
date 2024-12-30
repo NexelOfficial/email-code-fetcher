@@ -1,7 +1,8 @@
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { invoke } from "@tauri-apps/api/core";
 import toast from "solid-toast";
 import { createSignal } from "solid-js";
+
+import { createCodeNotification } from "./notifications";
 
 export type EmailCode = {
   value: string;
@@ -14,27 +15,6 @@ export type UserInfo = {
 };
 
 type LongId = [string, Date];
-
-const createNotification = (code: EmailCode) => {
-  const matches = code.address.match(/<[^]+>/g) || [];
-  const sender = matches[0];
-  const email = sender?.slice(1, sender.length - 1);
-
-  const webview = new WebviewWindow("notification", {
-    width: 300,
-    height: 100,
-    transparent: true,
-    alwaysOnTop: true,
-    decorations: false,
-    dragDropEnabled: false,
-    shadow: false,
-    y: 8,
-    x: 8,
-    url: `notification/${code.value}/${email || code.address}`,
-  });
-
-  webview.once("tauri://error", (e) => console.error(e));
-};
 
 export const useFetcher = () => {
   const [running, setRunning] = createSignal<LongId[]>([]);
@@ -52,7 +32,7 @@ export const useFetcher = () => {
 
     if (message.value) {
       callback(message);
-      createNotification(message);
+      createCodeNotification(message);
     }
 
     // Run again after interval
