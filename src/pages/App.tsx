@@ -69,7 +69,7 @@ const App = () => {
         </Show>
       </Category>
       <Category text="Accounts" icon={FiUser} hidden>
-        <AccountManager />
+        <AccountManager running={running().length > 0} />
       </Category>
       <Category text="Settings" icon={FiSettings} hidden>
         <StartupSetting />

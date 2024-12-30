@@ -5,8 +5,13 @@ import { FiAtSign } from "solid-icons/fi";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
 import { getUser, getUsers, removeUser, UserInfo } from "../fetcher";
+import toast from "solid-toast";
 
-export const AccountManager = () => {
+type AccountManagerProps = {
+  running: boolean;
+};
+
+export const AccountManager = (props: AccountManagerProps) => {
   const [users, setUsers] = createSignal<UserInfo[]>([]);
 
   const getAccounts = async () => setUsers(await getUsers());
@@ -27,8 +32,14 @@ export const AccountManager = () => {
                 <Button
                   active
                   onClick={async () => {
+                    if (props.running) {
+                      return toast.error("Please stop the fetcher first.");
+                    }
+
                     await removeUser(user.id);
                     await getAccounts();
+
+                    toast.success(`Succesfully removed ${user.email}.`);
                   }}
                 >
                   Remove
@@ -42,10 +53,13 @@ export const AccountManager = () => {
         <Button
           icon={ImGoogle}
           onClick={async () => {
+            if (props.running) {
+              return toast.error("Please stop the fetcher first.");
+            }
+
             await getUser();
             await getAccounts();
           }}
-          successIcon
         >
           <span>Add Google account</span>
         </Button>
