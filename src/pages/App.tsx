@@ -2,7 +2,6 @@ import { getMatches } from "@tauri-apps/plugin-cli";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import {
   FiAtSign,
-  FiBox,
   FiClock,
   FiCopy,
   FiHash,
@@ -17,11 +16,12 @@ import toast, { Toaster } from "solid-toast";
 import { Button } from "../components/Button";
 import { Category } from "../components/Category";
 import { StartupSetting } from "../features/StartupSetting";
-import { UpdateInterval } from "../features/UpdateInterval";
+import { NotificationTime } from "../features/NotificationTime";
 import { Container } from "../components/Container";
 import { EmailCode, useFetcher } from "../fetcher";
 import { AuthenticationModal } from "../features/AuthenticationModal";
 import { AccountManager } from "../features/AccountManager";
+import { DarkModeSetting } from "../features/DarkModeSetting";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
@@ -47,33 +47,34 @@ const App = () => {
   });
 
   return (
-    <main class="flex flex-col min-h-screen bg-gray-100">
+    <main class="flex flex-col min-h-screen text-gray-800 bg-gray-100 dark:text-white dark:bg-gray-900">
       <AuthenticationModal />
-
-      <div class="mb-2 bg-blue-800 text-white py-2 px-4">
-        <h1 class="font-semibold text-xl">Email Code Fetcher</h1>
-      </div>
-      <Toaster position="bottom-center" />
-      <Category text="Controls" icon={FiBox}>
-        <Show
-          when={running().length === 0}
-          fallback={
-            <Button active icon={FiSquare} onClick={stop}>
-              <span>Stop receiving codes</span>
+      <div class="p-2 px-4 flex gap-x-2 items-center">
+        <h1 class="text-xl font-semibold">Email Code Fetcher</h1>
+        <div class="ml-auto">
+          <Show
+            when={running().length === 0}
+            fallback={
+              <Button active icon={FiSquare} onClick={stop}>
+                <span>Stop</span>
+              </Button>
+            }
+          >
+            <Button icon={FiPlay} onClick={async () => await start(addCode)}>
+              <span>Start</span>
             </Button>
-          }
-        >
-          <Button icon={FiPlay} onClick={async () => await start(addCode)}>
-            <span>Start receiving codes</span>
-          </Button>
-        </Show>
-      </Category>
-      <Category text="Accounts" icon={FiUser} hidden>
+          </Show>
+        </div>
+      </div>
+
+      <Toaster position="bottom-center" />
+      <Category text="Accounts" icon={FiUser}>
         <AccountManager running={running().length > 0} />
       </Category>
       <Category text="Settings" icon={FiSettings} hidden>
         <StartupSetting />
-        <UpdateInterval />
+        <DarkModeSetting />
+        <NotificationTime />
       </Category>
       <Category text="Latest codes" icon={FiList}>
         <div class="px-2 flex flex-col gap-2">

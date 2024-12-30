@@ -1,57 +1,71 @@
 import { invoke } from "@tauri-apps/api/core";
 import { createSignal, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
-import { FiCheck, FiCopy, FiHash } from "solid-icons/fi";
+import { FiAtSign, FiCheck, FiCopy, FiHash } from "solid-icons/fi";
 
-import { Container } from "../components/Container";
+import { getSetting } from "../settings";
 
 const Notifiy = () => {
   const [copied, setCopied] = createSignal(false);
   const [hidden, setHidden] = createSignal(true);
 
-  const { code } = useParams();
+  const { code, sender } = useParams();
 
   const hide = () => {
     setHidden(true);
     setTimeout(async () => await invoke("close_notification"), 500);
   };
 
+  const duration = () => {
+    const time = getSetting("notification-time") || "5";
+    return parseFloat(time) * 1000;
+  };
+
   const copyCode = async () => {
     navigator.clipboard.writeText(code);
 
     setCopied(true);
-    setTimeout(hide, 500);
+    hide();
   };
 
   // Animate the window opening and closing
   setTimeout(() => setHidden(false), 100);
-  setTimeout(hide, 5000);
+  setTimeout(hide, duration());
 
   return (
     <button
       onClick={copyCode}
-      class="text-lg w-full relative transition-all"
-      classList={{ "-translate-y-full": hidden() }}
+      class="text-lg w-full relative transition-all overflow-hidden"
+      classList={{
+        "-translate-y-full": hidden(),
+        dark: getSetting("dark-mode") === "true",
+      }}
     >
-      <Container class="pb-3">
-        <span>New code</span>
-        <FiHash class="ml-auto" />
-        <span class="font-bold">{code}</span>
+      <div class="pb-3 flex-col py-1 px-3 gap-2 rounded border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white">
+        <div class="flex items-center gap-x-2 w-full">
+          <FiHash />
+          <span class="font-bold">{code}</span>
 
-        <Show when={!copied()} fallback={<FiCheck class="ml-4" />}>
-          <FiCopy class="ml-4" />
-        </Show>
+          <Show when={!copied()} fallback={<FiCheck class="ml-auto" />}>
+            <FiCopy class="ml-auto" />
+          </Show>
+        </div>
+        <div class="flex items-center gap-x-2 w-full text-base text-gray-600">
+          <FiAtSign />
+          <span>{sender}</span>
+        </div>
 
-        <div class="absolute w-2/3 z-10 bottom-0 left-1/2 h-1 -translate-x-1/2 bg-gray-300">
+        <div class="absolute w-2/3 z-10 bottom-0 left-1/2 h-1 -translate-x-1/2 bg-gray-300 dark:bg-gray-600">
           <div
-            class="h-1 z-10 bg-gray-800 duration-[5s] ease-linear"
+            class="h-1 z-10 bg-gray-800 dark:bg-white ease-linear"
+            style={{ "transition-duration": `${duration()}ms` }}
             classList={{
               "w-0": !hidden(),
               "w-full": hidden(),
             }}
           />
         </div>
-      </Container>
+      </div>
     </button>
   );
 };

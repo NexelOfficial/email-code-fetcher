@@ -27,10 +27,10 @@ export const Checkbox = (props: CheckboxProps) => {
           class="rounded size-5 border-2 appearance-none transition-all"
           classList={{
             "border-gray-400": !checked(),
-            "bg-blue-800 border-blue-800": checked(),
+            "bg-blue-700 border-blue-700": checked(),
           }}
         />
-        <FiCheck class="top-0 absolute size-full p-1 text-white" />
+        <FiCheck class="top-0 absolute size-full p-1 text-white dark:text-gray-800" />
       </div>
     </Container>
   );

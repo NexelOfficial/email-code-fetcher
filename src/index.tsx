@@ -12,7 +12,7 @@ render(
   () => (
     <Router>
       <Route path="*" component={App} />
-      <Route path="/notification/:code" component={Notifiy} />
+      <Route path="/notification/:code/:sender" component={Notifiy} />
     </Router>
   ),
   document.getElementById("root") as HTMLElement

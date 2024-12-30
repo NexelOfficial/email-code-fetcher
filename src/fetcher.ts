@@ -15,10 +15,14 @@ export type UserInfo = {
 
 type LongId = [string, Date];
 
-const createNotification = (code: string) => {
+const createNotification = (code: EmailCode) => {
+  const matches = code.address.match(/<[^]+>/g) || [];
+  const sender = matches[0];
+  const email = sender?.slice(1, sender.length - 1);
+
   const webview = new WebviewWindow("notification", {
     width: 300,
-    height: 50,
+    height: 100,
     transparent: true,
     alwaysOnTop: true,
     decorations: false,
@@ -26,7 +30,7 @@ const createNotification = (code: string) => {
     shadow: false,
     y: 8,
     x: 8,
-    url: `notification/${code}`,
+    url: `notification/${code.value}/${email || code.address}`,
   });
 
   webview.once("tauri://error", (e) => console.error(e));
@@ -48,10 +52,10 @@ export const useFetcher = () => {
 
     if (message.value) {
       callback(message);
-      createNotification(message.value);
+      createNotification(message);
     }
 
-    // Run again after 5 seconds
+    // Run again after interval
     setTimeout(() => fetch(longId, callback), 5000);
   };
 
@@ -80,9 +84,8 @@ export const useFetcher = () => {
       await fetch(longId, callback);
     }
 
-    toast.success(
-      "Succesfully started the code fetcher. Updating at 5-second interval."
-    );
+    // Get interval string
+    toast.success(`Succesfully started the code fetcher.`);
   };
 
   const stop = async () => {

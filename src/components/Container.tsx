@@ -7,10 +7,11 @@ type ContainerProps = JSX.HTMLAttributes<HTMLDivElement> & {
 export const Container = (props: ContainerProps) => (
   <div
     {...props}
-    class={`flex items-center border-2 gap-2 rounded py-2 px-4 ${props.class}`}
+    class={`flex items-center border-2 py-2 px-4 gap-2 rounded ${props.class}`}
     classList={{
-      "border-gray-200 bg-white": !props.active,
-      "border-blue-800 bg-blue-800 text-white": props.active,
+      "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 dark:text-white":
+        !props.active,
+      "border-blue-700 bg-blue-700 text-white": props.active,
       ...props.classList,
     }}
   />
