@@ -55,11 +55,14 @@ async fn get_last_email(app: AppHandle, id: String) -> EmailCode {
 
     // Extract code from message
     let snippet = message["snippet"].as_str().unwrap_or_default();
-    let re = Regex::new(r"[^0-9][0-9]{6,8}[^0-9]").unwrap();
+    let re = Regex::new(r"\b[0-9A-Z]{5,8}\b").unwrap();
     if let Some(mat) = re.find(snippet) {
         let mat_str = mat.as_str();
-        let code = &mat_str[1..mat_str.len() - 1];
-        result.value = code.to_string();
+        let has_number = mat_str.chars().any(|c| c.is_numeric());
+
+        if has_number {
+            result.value = mat_str.to_string();
+        }
     }
 
     // Extract sender
