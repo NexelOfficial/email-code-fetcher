@@ -99,6 +99,7 @@ pub fn run() {
         .expect("Failed to install rustls crypto provider.");
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
