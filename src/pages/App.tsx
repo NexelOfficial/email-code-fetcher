@@ -23,6 +23,7 @@ import { AuthenticationModal } from "../features/AuthenticationModal";
 import { AccountManager } from "../features/AccountManager";
 import { DarkModeSetting } from "../features/DarkModeSetting";
 import { ConnectionSetting } from "../features/ConnectionSetting";
+import { ConnectionModal } from "../features/ConnectionModal";
 
 const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
@@ -50,6 +51,8 @@ const App = () => {
   return (
     <main class="flex flex-col min-h-screen text-gray-800 bg-gray-100 dark:text-white dark:bg-gray-900">
       <AuthenticationModal />
+      <ConnectionModal />
+      
       <div class="p-2 px-4 flex gap-x-2 items-center">
         <h1 class="text-xl font-semibold">Email Code Fetcher</h1>
         <div class="ml-auto">

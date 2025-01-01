@@ -1,3 +1,4 @@
+import { makeConnectivityListener } from "@solid-primitives/connectivity";
 import { Checkbox } from "../components/Checkbox";
 import { useSetting } from "../settings";
 import { createMessageNotification } from "../notifications";
@@ -5,23 +6,15 @@ import { createMessageNotification } from "../notifications";
 export const ConnectionSetting = () => {
   const notifications = useSetting("connection-notifications", "true");
 
-  window.addEventListener("offline", () => {
+  makeConnectivityListener((isOnline) => {
     if (!notifications.is()) {
       return;
     }
 
     createMessageNotification(
-      "You're currently offline. No codes can be received."
-    );
-  });
-
-  window.addEventListener("online", () => {
-    if (!notifications.is()) {
-      return;
-    }
-
-    createMessageNotification(
-      "You're back online. Codes can be received again."
+      isOnline
+        ? "You're back online. Codes can be received again."
+        : "You're currently offline. No codes can be received."
     );
   });
 
