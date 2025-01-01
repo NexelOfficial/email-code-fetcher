@@ -1,20 +1,31 @@
-import { getName } from "@tauri-apps/api/app";
+import { getName, getVersion } from "@tauri-apps/api/app";
 import { createEffect, createSignal } from "solid-js";
 
-export const useName = () => {
+export const useAppInfo = () => {
   const [name, setName] = createSignal("");
+  const [version, setVersion] = createSignal("");
 
-  createEffect(async () => setName(await getName()));
+  createEffect(async () => {
+    setName(await getName());
+    setVersion(await getVersion());
+  });
 
-  return name;
+  return { name, version };
 };
 
-export const useStep = () => {
+export const useStep = (length: number, onFinish: () => void) => {
   const [current, setCurrent] = createSignal(0);
 
-  const next = () => setCurrent(current() + 1);
+  const next = () => {
+    if (current() === length) {
+      return onFinish();
+    }
+
+    setCurrent(current() + 1);
+  };
   const previous = () => setCurrent(Math.max(current() - 1, 0));
   const is = (value: number) => current() === value;
+  const isLast = () => current() === length;
 
-  return { is, next, previous };
+  return { is, isLast, next, previous };
 };

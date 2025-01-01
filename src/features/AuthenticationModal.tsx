@@ -21,7 +21,7 @@ export const AuthenticationModal = () => {
       }}
     >
       <Container
-        class="transition-all m-auto w-4/5 flex-col gap-2 text-lg py-4"
+        class="transition-all m-auto w-96 flex-col gap-2 text-lg py-4"
         classList={{
           "scale-90 opacity-0": authUrl() === "",
           "scale-100 opacity-1": authUrl() !== "",

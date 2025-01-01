@@ -5,12 +5,12 @@ import { createConnectivitySignal } from "@solid-primitives/connectivity";
 
 import { Container } from "../components/Container";
 import { Button } from "../components/Button";
-import { useName } from "../signals";
+import { useAppInfo } from "../signals";
 
 export const ConnectionModal = () => {
   const [hidden, setHidden] = createSignal(navigator.onLine);
   const isOnline = createConnectivitySignal();
-  const name = useName();
+  const { name } = useAppInfo();
 
   // Hide / show modal based on connection
   createEffect(() => setHidden(isOnline()));
