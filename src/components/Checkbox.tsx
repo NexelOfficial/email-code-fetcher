@@ -30,7 +30,13 @@ export const Checkbox = (props: CheckboxProps) => {
             "bg-blue-700 border-blue-700": checked(),
           }}
         />
-        <FiCheck class="top-0 absolute size-full p-1 text-white dark:text-gray-800" />
+        <FiCheck
+          class="top-0 absolute size-full p-1"
+          classList={{
+            "text-transparent": !checked(),
+            "text-white": checked(),
+          }}
+        />
       </div>
     </Container>
   );

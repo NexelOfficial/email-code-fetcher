@@ -21,13 +21,15 @@ import { Container } from "../components/Container";
 import { EmailCode, useFetcher } from "../fetcher";
 import { AuthenticationModal } from "../features/AuthenticationModal";
 import { AccountManager } from "../features/AccountManager";
-import { DarkModeSetting } from "../features/DarkModeSetting";
-import { ConnectionSetting } from "../features/ConnectionSetting";
+import { DarkModeSetting } from "../features/settings/DarkModeSetting";
+import { ConnectionSetting } from "../features/settings/ConnectionSetting";
 import { ConnectionModal } from "../features/ConnectionModal";
+import { useSetting } from "../settings";
 
-const App = () => {
+export const App = () => {
   const [codes, setCodes] = createSignal<EmailCode[]>([]);
   const { start, stop, running } = useFetcher();
+  const onboarding = useSetting("onboarding");
 
   const addCode = (code: EmailCode) => {
     setCodes((old) => [...old, code]);
@@ -48,11 +50,18 @@ const App = () => {
     }
   });
 
+  // Start onboarding if it's the first time
+  createEffect(() => {
+    if (!onboarding.is()) {
+      window.location.href = "/onboarding";
+    }
+  });
+
   return (
     <main class="flex flex-col min-h-screen text-gray-800 bg-gray-100 dark:text-white dark:bg-gray-900">
       <AuthenticationModal />
       <ConnectionModal />
-      
+
       <div class="p-2 px-4 flex gap-x-2 items-center">
         <h1 class="text-xl font-semibold">Email Code Fetcher</h1>
         <div class="ml-auto">
@@ -131,5 +140,3 @@ const App = () => {
     </main>
   );
 };
-
-export default App;

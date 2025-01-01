@@ -1,6 +1,6 @@
 import { createEffect } from "solid-js";
-import { Checkbox } from "../components/Checkbox";
-import { useSetting } from "../settings";
+import { Checkbox } from "../../components/Checkbox";
+import { useSetting } from "../../settings";
 
 export const DarkModeSetting = () => {
   const dark = useSetting("dark-mode");

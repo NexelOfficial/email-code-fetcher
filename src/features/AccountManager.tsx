@@ -24,7 +24,7 @@ export const AccountManager = (props: AccountManagerProps) => {
         <For each={users()}>
           {(user) => (
             <Container>
-              <p class="flex items-center gap-x-2">
+              <p class="flex items-center gap-x-2 overflow-ellipsis overflow-hidden">
                 <FiAtSign />
                 <span>{user.email}</span>
               </p>

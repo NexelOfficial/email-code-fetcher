@@ -1,7 +1,7 @@
 import { makeConnectivityListener } from "@solid-primitives/connectivity";
-import { Checkbox } from "../components/Checkbox";
-import { useSetting } from "../settings";
-import { createMessageNotification } from "../notifications";
+import { Checkbox } from "../../components/Checkbox";
+import { useSetting } from "../../settings";
+import { createMessageNotification } from "../../notifications";
 
 export const ConnectionSetting = () => {
   const notifications = useSetting("connection-notifications", "true");

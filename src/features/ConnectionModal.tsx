@@ -1,4 +1,3 @@
-import { getName } from "@tauri-apps/api/app";
 import { createEffect, createSignal } from "solid-js";
 import { FiWifiOff } from "solid-icons/fi";
 import { Portal } from "solid-js/web";
@@ -6,23 +5,15 @@ import { createConnectivitySignal } from "@solid-primitives/connectivity";
 
 import { Container } from "../components/Container";
 import { Button } from "../components/Button";
+import { useName } from "../signals";
 
 export const ConnectionModal = () => {
-  const [hidden, setHidden] = createSignal(true);
-  const [name, setName] = createSignal("");
+  const [hidden, setHidden] = createSignal(navigator.onLine);
   const isOnline = createConnectivitySignal();
+  const name = useName();
 
   // Hide / show modal based on connection
   createEffect(() => setHidden(isOnline()));
-
-  // Add app name and initial status
-  createEffect(async () => {
-    setName(await getName());
-
-    if (!navigator.onLine) {
-      setHidden(false);
-    }
-  });
 
   return (
     <div
